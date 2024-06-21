@@ -66,7 +66,7 @@ def preprocess(frames):
     y = np.array(y)
     return X, y
 
-def train_model(model, X, y, epochs=8, batch_size=64, steps_per_epoch=16):
+def train_model(model, X, y, epochs=8, batch_size=32, steps_per_epoch=16):
     model.fit(X, y, epochs=epochs, batch_size=batch_size, validation_split=0.1, steps_per_epoch=steps_per_epoch)
     model.save('frame_interpolator.h5')
 
