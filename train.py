@@ -14,7 +14,8 @@ def load_frames_from_all_subdirs(base_dir, max_side_length=420):
             frame = cv2.imread(frame_path, cv2.IMREAD_COLOR)  # Ensure color image is loaded
             
             # Resize while maintaining aspect ratio
-            height, width = frame.shape[:3]
+            height, width, _ = frame.shape  # Handle all three dimensions
+            
             if height > width:
                 new_height = max_side_length
                 new_width = int(width * (max_side_length / height))

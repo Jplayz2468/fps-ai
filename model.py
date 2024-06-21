@@ -60,8 +60,8 @@ def double_video_fps(model, input_video_path, output_video_path):
     print(f"Processed {frame_count} frames and saved to {output_video_path}")
 
 if __name__ == "__main__":
-    model_path = 'frame_interpolator.h5'
-    weights_path = 'checkpoint.weights.h5'
+    model_path = 'old_model.h5'
+    weights_path = 'old.weights.h5'
     input_video_path = 'input.mp4'
     output_video_path = 'output_video_3.mp4'
     
