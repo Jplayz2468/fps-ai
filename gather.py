@@ -23,12 +23,7 @@ def download_youtube_video(url, output_path):
                 return output_path
             return None
         except Exception as e:
-            if attempt < retry_attempts - 1:
-                wait_time = 2 ** attempt
-                print(f"Error: {e}. Retrying in {wait_time} seconds...")
-                time.sleep(wait_time)
-            else:
-                raise
+            print(e)
 
 def resize_with_aspect_ratio(image, max_side=256):
     height, width = image.shape[:2]
