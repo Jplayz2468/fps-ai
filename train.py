@@ -5,14 +5,33 @@ import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, UpSampling2D
 
-def load_frames_from_all_subdirs(base_dir, img_size=(256, 256)):
+def load_frames_from_all_subdirs(base_dir, max_side_length=420):
     frames = []
     for subdir, _, files in os.walk(base_dir):
         frame_files = sorted([f for f in files if f.endswith('.jpg')])
         for frame_file in frame_files:
             frame_path = os.path.join(subdir, frame_file)
             frame = cv2.imread(frame_path, cv2.IMREAD_COLOR)  # Ensure color image is loaded
-            frame = cv2.resize(frame, img_size)
+            
+            # Resize while maintaining aspect ratio
+            height, width = frame.shape[:3]
+            if height > width:
+                new_height = max_side_length
+                new_width = int(width * (max_side_length / height))
+            else:
+                new_width = max_side_length
+                new_height = int(height * (max_side_length / width))
+            
+            frame = cv2.resize(frame, (new_width, new_height))
+            
+            # Pad the image to make it square
+            delta_w = max_side_length - new_width
+            delta_h = max_side_length - new_height
+            top, bottom = delta_h // 2, delta_h - (delta_h // 2)
+            left, right = delta_w // 2, delta_w - (delta_w // 2)
+            color = [0, 0, 0]
+            frame = cv2.copyMakeBorder(frame, top, bottom, left, right, cv2.BORDER_CONSTANT, value=color)
+            
             frames.append(frame)
     frames = np.array(frames)
     frames = frames.astype('float32') / 255.0
@@ -46,7 +65,7 @@ def preprocess(frames):
     y = np.array(y)
     return X, y
 
-def train_model(model, X, y, epochs=4, batch_size=32, steps_per_epoch=8):
+def train_model(model, X, y, epochs=8, batch_size=64, steps_per_epoch=16):
     model.fit(X, y, epochs=epochs, batch_size=batch_size, validation_split=0.1, steps_per_epoch=steps_per_epoch)
     model.save('frame_interpolator.h5')
 

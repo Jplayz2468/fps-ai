@@ -25,7 +25,7 @@ def download_youtube_video(url, output_path):
         except Exception as e:
             print(e)
 
-def resize_with_aspect_ratio(image, max_side=256):
+def resize_with_aspect_ratio(image, max_side=420):
     height, width = image.shape[:2]
     if width > height:
         new_width = max_side
