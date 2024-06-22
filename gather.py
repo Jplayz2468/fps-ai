@@ -70,7 +70,7 @@ def extract_random_frames(video_path, output_dir, num_frames=50, fps_sections=[7
     cap.release()
     os.remove(video_path)
 
-def process_videos_from_urls(url_list_file, output_base_dir, num_videos=100, num_frames=50, fps_sections=[7.5, 15, 30]):
+def process_videos_from_urls(url_list_file, output_base_dir, state_file, num_videos=100, num_frames=50, fps_sections=[7.5, 15, 30]):
     with open(url_list_file, 'r') as file:
         urls = [line.strip() for line in file.readlines()]
 
@@ -78,7 +78,13 @@ def process_videos_from_urls(url_list_file, output_base_dir, num_videos=100, num
         print(f"Not enough videos found. Only {len(urls)} available.")
         num_videos = len(urls)
 
-    processed_videos = 0
+    # Load the last processed video index
+    if os.path.exists(state_file):
+        with open(state_file, 'r') as file:
+            processed_videos = int(file.read().strip())
+    else:
+        processed_videos = 0
+
     while processed_videos < num_videos:
         url = urls.pop(0)
         video_filename = f"video_{processed_videos}.mp4"
@@ -90,6 +96,10 @@ def process_videos_from_urls(url_list_file, output_base_dir, num_videos=100, num
             extract_random_frames(video_output_path, video_output_dir, num_frames, fps_sections)
             processed_videos += 1
             print(f"Processed and deleted video: {url}")
+
+            # Save the current state
+            with open(state_file, 'w') as file:
+                file.write(str(processed_videos))
         except Exception as e:
             print(f"Skipping video: {url} due to error: {e}")
             new_url = random.choice(fetch_random_videos())
@@ -103,4 +113,5 @@ def process_videos_from_urls(url_list_file, output_base_dir, num_videos=100, num
 if __name__ == "__main__":
     output_base_dir = 'frames'
     url_list_file = 'youtube_urls.txt'
-    process_videos_from_urls(url_list_file, output_base_dir, num_videos=100, num_frames=50)
+    state_file = 'processing_state.txt'
+    process_videos_from_urls(url_list_file, output_base_dir, state_file, num_videos=100, num_frames=50)
